@@ -1,0 +1,13 @@
+* Functional specification v. 1
+** Project
+   ewarg - Edvin Waldh & Andreas Remar's Graphics
+   Python graphics engine.
+
+   This is version 1 of the specification.
+** Author
+   Andreas Remar, andreas.remar@gmail.com
+** Scenarios
+** Goals
+** Nongoals
+** Overview
+** Details
