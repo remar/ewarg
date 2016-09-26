@@ -7,7 +7,124 @@
 ** Author
    Andreas Remar, andreas.remar@gmail.com
 ** Scenarios
+*** Scenario #1, Pacman
+    Junior programmer Edvin wants to recreate Pacman in Python. To be
+    able to do this he needs a competent graphics engine that can
+    handle tiled backgrounds and animated sprites.
+
+    To start off he imports the ewarg module. With some simple calls
+    into the ewarg module he sets up a screen, adds a tileset, and
+    loads in the Pacman and ghost sprites. With a couple of additional
+    calls he creates one Pacman and four ghost sprite instances, and
+    the deadly dance can begin!
 ** Goals
+   These are the features that will be the focus of the first version
+   of the graphics engine:
+*** Background abstraction with variable tile dimension
+*** Sprite handling with animated sprites
+*** Sprites defined in external files
 ** Nongoals
+   The first version of the graphics engine will not support the
+   following features, but many will be included in later versions:
+*** Pausing animations
+*** More graphics formats
+*** Background scrolling
+*** Variable sized backgrounds
+*** Multiple background layers
+*** Large scrollable backgrounds (maps)
+*** Sprite rotation
+*** Sprite scaling
+*** Zooming in/out
+*** Sprites made of parts connected with a skeleton
 ** Overview
+   This is a birds-eye view of the graphics engine:
+*** 1. Initialization
+    This consists of creating a graphics window and loading in
+    tilesets and sprites. Sprites will be specified in external files
+    containing pointers to graphics and animation definitions. The
+    supported image format is BMP.
+*** 2. Background layout and sprite instance creation
+    Set up the background by specifying which tiles should go
+    where. Create sprite instances of the sprites that should be
+    visible.
+*** 3. Continous updating of sprite instances and background
+    During the game you will move around the sprites and change which
+    animation is playing. You might also change the background tiles.
 ** Details
+*** File layout
+**** Sprite file layout
+     A sprite file will contain a JSON structure describing the
+     sprites animations.
+
+     {
+         "name": "My Sprite",
+         "animations": {
+             "walk": {
+                 "image": {
+                     "path":"path/to/walk.bmp",
+                     "width":32,
+                     "height":32
+                 },
+                 "looping": true,
+                 "frames": [
+                     [0, 100], [1, 150], [2, 100], [1, 150]
+                 ]
+             },
+             "jump": {
+                 "image": {
+                     "path":"path/to/jump.bmp",
+                     "width":32,
+                     "height":32
+                 },
+                 "looping": false,
+                 "frames": [
+                     [0, 100], [1, 150], [2, 100], [3, 1000], [-1, 300]
+                 ]
+             }
+         }
+     }
+
+     The frame list is made up of lists. For each list, the first
+     element contains the index into the animations image. The second
+     element is the duration of the frame in milliseconds. A frame
+     index of -1 indicates that the sprite should be hidden during the
+     frames duration.
+*** Methods
+    Methods definitions and explanations. All these are methods of the
+    ewarg class. To use ewarg you must first create an instance of ewarg
+    like this: import ewarg; e = ewarg.ewarg()
+**** init(width, height)
+     Create a window with the specified width and height.
+**** redraw()
+     Update the screen with the sprite engines state. Call this once
+     for each pass in the game loop.
+
+     Note: It's undecided if this method will lock the framerate to
+     some value, preferably 60 fps.
+**** set_background_color(r, g, b)
+     Set the background color. r, g, and b are in [0, 255]
+**** set_tilesize(width, height)
+     Set up how big the tiles are.
+**** load_tileset(name, filename)
+     Load in the image file and later refer to it by the given name.
+**** set_tile(x, y, name, tile_x, tile_y)
+     Set the tile at x, y from the tileset with the given name and
+     tile location in the file.
+**** load_sprite(filename)
+     Load the sprite defined in the given JSON file. See above for
+     layout of a sprite definition.
+**** create_sprite_instance(name)
+     Create a sprite instance of the given sprite. The name is defined
+     in the sprites JSON file. Returns a handle to this sprite which
+     will be supplied to other sprite methods.
+**** remove_sprite_instance(sprite_id)
+     Remove the indicated sprite instance.
+**** show_sprite(sprite_id, show)
+     Show or hide a sprite. show is a boolean value.
+**** set_animation(sprite_id, animation)
+     Set animation for the indicated sprite. The animation will start
+     at the beginning.
+**** move_sprite_rel(sprite_id, x, y)
+     Move the sprite relative to its current position.
+**** move_sprite_abs(sprite_id, x, y)
+     Set the sprites position to x, y.
