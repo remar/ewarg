@@ -101,8 +101,6 @@
 
      Note: It's undecided if this method will lock the framerate to
      some value, preferably 60 fps.
-**** set_background_color(r, g, b)
-     Set the background color. r, g, and b are in [0, 255]
 **** set_tilesize(width, height)
      Set up how big the tiles are.
 **** load_tileset(name, filename)
