@@ -54,33 +54,32 @@
 *** File layout
 **** Sprite file layout
      A sprite file will contain a JSON structure describing the
-     sprites animations.
+     sprites animations. The name of the JSON file determines the
+     sprites name, e.g. "cpngood.json" means that the sprite will be
+     called "cpngood".
 
      {
-         "name": "My Sprite",
-         "animations": {
-             "walk": {
-                 "image": {
-                     "path":"path/to/walk.bmp",
-                     "width":32,
-                     "height":32
-                 },
-                 "looping": true,
-                 "frames": [
-                     [0, 100], [1, 150], [2, 100], [1, 150]
-                 ]
+         "walk": {
+             "image": {
+                 "path":"path/to/walk.bmp",
+                 "width":32,
+                 "height":32
              },
-             "jump": {
-                 "image": {
-                     "path":"path/to/jump.bmp",
-                     "width":32,
-                     "height":32
-                 },
-                 "looping": false,
-                 "frames": [
-                     [0, 100], [1, 150], [2, 100], [3, 1000], [-1, 300]
-                 ]
-             }
+             "looping": true,
+             "frames": [
+                 [0, 100], [1, 150], [2, 100], [1, 150]
+             ]
+         },
+         "jump": {
+             "image": {
+                 "path":"path/to/jump.bmp",
+                 "width":32,
+                 "height":32
+             },
+             "looping": false,
+             "frames": [
+                 [0, 100], [1, 150], [2, 100], [3, 1000], [-1, 300]
+             ]
          }
      }
 
@@ -112,9 +111,10 @@
      Load the sprite defined in the given JSON file. See above for
      layout of a sprite definition.
 **** create_sprite_instance(name)
-     Create a sprite instance of the given sprite. The name is defined
-     in the sprites JSON file. Returns a handle to this sprite which
-     will be supplied to other sprite methods.
+     Create a sprite instance of the given sprite. The name is the
+     same as the JSON file name but without the .json suffix. Returns
+     a handle to this sprite which will be supplied to other sprite
+     methods.
 **** remove_sprite_instance(sprite_id)
      Remove the indicated sprite instance.
 **** show_sprite(sprite_id, show)
