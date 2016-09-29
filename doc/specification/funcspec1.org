@@ -87,7 +87,9 @@
      element contains the index into the animations image. The second
      element is the duration of the frame in milliseconds. A frame
      index of -1 indicates that the sprite should be hidden during the
-     frames duration.
+     frames duration. The frames are indexed in the x direction, so a
+     frame index of 2 will be located 2*width pixels from the left
+     edge of the image.
 *** Methods
     Methods definitions and explanations. All these are methods of the
     ewarg class. To use ewarg you must first create an instance of ewarg
