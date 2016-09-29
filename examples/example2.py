@@ -13,6 +13,10 @@ ewarg.set_tilesize(32, 32)
 ewarg.load_tileset("block", "data/block1.bmp")
 ewarg.load_sprite("data/cpngood.json")
 
+sprite_id = ewarg.create_sprite_instance("cpngood")
+
+ewarg.set_animation(sprite_id, "walk right")
+
 for y in range(4):
     for x in range(5):
         ewarg.set_tile(x*2, y*2, "block", 3, 0)
