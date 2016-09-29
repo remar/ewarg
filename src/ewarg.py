@@ -67,6 +67,12 @@ class ewarg(object):
         self.sprite_instances[sprite_id] = SpriteInstance(self.sprites[sprite_name])
         return sprite_id
 
+    def remove_sprite_instance(self, sprite_id):
+        del self.sprite_instances[sprite_id]
+
+    def show_sprite(self, sprite_id, show):
+        self.sprite_instances[sprite_id].set_visible(show)
+
     def set_animation(self, sprite_id, animation):
         self.sprite_instances[sprite_id].set_animation(animation)
 
@@ -157,6 +163,9 @@ class SpriteInstance(object):
         self.dest.h = self.src.h = self.current_animation.height
 
         self.src.x = self.current_frame[0] * self.current_animation.width
+
+    def set_visible(self, visible):
+        self.visible = visible
 
     def draw(self, renderer, delta):
         self._animate(delta)

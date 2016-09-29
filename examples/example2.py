@@ -15,6 +15,9 @@ ewarg.load_sprite("data/cpngood.json")
 
 cpn_good_id = ewarg.create_sprite_instance("cpngood")
 
+throw_away_cpn_good = ewarg.create_sprite_instance("cpngood")
+ewarg.remove_sprite_instance(throw_away_cpn_good)
+
 ewarg.set_animation(cpn_good_id, "walk right")
 ewarg.move_sprite_abs(cpn_good_id, 0, 64*3 - 24)
 
@@ -31,12 +34,20 @@ for y in range(4):
         ewarg.set_tile(x*2+1, y*2+1, "block", 6, 0)
 
 running = True
+show = True
 
 while running:
     for event in sdl2.ext.get_events():
         if event.type == sdl2.SDL_QUIT:
             running = False
             break
+        elif event.type == sdl2.SDL_KEYDOWN:
+            if event.key.keysym.scancode == sdl2.SDL_SCANCODE_Q:
+                running = False
+                break
+            elif event.key.keysym.scancode == sdl2.SDL_SCANCODE_SPACE:
+                show = not show
+                ewarg.show_sprite(cpn_good_id, show)
 
     cpn_good_x += cpn_good_dx
     if cpn_good_x == 0 or cpn_good_x == 320-16:
