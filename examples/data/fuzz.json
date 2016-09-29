@@ -1,0 +1,13 @@
+{
+    "roll right": {
+        "image": {
+            "path":"fuzz.bmp",
+            "width":24,
+            "height":24
+        },
+        "looping": true,
+        "frames": [
+            [0, 60], [1, 60], [2, 60]
+        ]
+    }
+}
