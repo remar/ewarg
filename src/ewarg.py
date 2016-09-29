@@ -1,9 +1,10 @@
-import sdl2, math
+import sdl2, math, json
 
 class ewarg(object):
     def __init__(self):
         self.tiles = []
         self.tilesets = {}
+        self.sprites = {}
 
     def init(self, width, height):
         self.width = width
@@ -14,6 +15,7 @@ class ewarg(object):
                                             width, height,
                                             sdl2.SDL_WINDOW_SHOWN)
         self.renderer = sdl2.SDL_CreateRenderer(self.window, -1, 0)
+        self.cache = TextureCache(self.renderer)
 
         sdl2.SDL_SetHint(sdl2.SDL_HINT_RENDER_SCALE_QUALITY, b"linear")
         sdl2.SDL_RenderSetLogicalSize(self.renderer, width, height)
@@ -32,14 +34,18 @@ class ewarg(object):
         self._init_tiles()
 
     def load_tileset(self, name, filename):
-        image = sdl2.SDL_LoadBMP(bytes(filename, 'ascii'))
-        self.tilesets[name] = sdl2.SDL_CreateTextureFromSurface(self.renderer,
-                                                                image)
-        sdl2.SDL_FreeSurface(image)
-
+        self.tilesets[name] = self.cache.get(filename)
 
     def set_tile(self, x, y, tileset, tile_x, tile_y):
         self.tiles[x][y].set(self.tilesets[tileset], tile_x, tile_y)
+
+    def load_sprite(self, filename):
+        path = "/".join(filename.split("/")[0:-1]) + "/"
+        sprite_name = filename.split("/")[-1].split(".")[0:-1][0]
+        f = open(filename)
+        sprite_def = json.load(f)
+        f.close()
+        self.sprites[sprite_name] = Sprite(sprite_def, path, self.cache)
 
     def _init_tiles(self):
         tiles_per_row = int(math.ceil(float(self.width) / self.tile_width))
@@ -57,6 +63,19 @@ class ewarg(object):
                 t.set(self.blank, 0, 0)
                 self.tiles[x].append(t)
 
+class TextureCache(object):
+    def __init__(self, renderer):
+        self.renderer = renderer
+        self.cache = {}
+
+    def get(self, filename):
+        if filename not in self.cache:
+            image = sdl2.SDL_LoadBMP(bytes(filename, 'ascii'))
+            self.cache[filename] = sdl2.SDL_CreateTextureFromSurface(self.renderer,
+                                                                     image)
+            sdl2.SDL_FreeSurface(image)
+        return self.cache[filename]
+
 class Tile(object):
     def __init__(self, x, y, width, height):
         self.texture = None
@@ -71,3 +90,21 @@ class Tile(object):
 
     def draw(self, renderer):
         sdl2.SDL_RenderCopy(renderer, self.texture, self.src, self.dest)
+
+class Sprite(object):
+    def __init__(self, sprite_def, path, cache):
+        self.animations = {}
+        for name, animation_def in sprite_def.items():
+            self.animations[name] = Animation(animation_def, path, cache)
+
+class Animation(object):
+    def __init__(self, animation_def, path, cache):
+        self.frames = animation_def["frames"]
+        self.texture = cache.get(path + animation_def["image"]["path"])
+        self.width = animation_def["image"]["width"]
+        self.height = animation_def["image"]["height"]
+        self.looping = animation_def["looping"]
+
+    def __str__(self):
+        return "Width: " + str(self.width) + ", Height: " + str(self.height) + \
+            ", Looping: " + str(self.looping) + ", Frames: " + str(self.frames)

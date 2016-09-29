@@ -1,0 +1,42 @@
+{
+    "walk right": {
+        "image": {
+            "path":"goodright.bmp",
+            "width":16,
+            "height":24
+        },
+        "looping": true,
+        "frames": [
+            [1, 50], [2, 50], [3, 50], [0, 50]
+        ]
+    },
+    "stand right": {
+	"image": {
+	    "path":"goodright.bmp",
+	    "width":16,
+	    "height":24
+	},
+	"looping": false,
+	"frames": [[0, 1]]
+    },
+    "walk left": {
+        "image": {
+            "path":"goodleft.bmp",
+            "width":16,
+            "height":24
+        },
+        "looping": true,
+        "frames": [
+            [1, 50], [2, 50], [3, 50], [0, 50]
+        ]
+    },
+    "stand left": {
+	"image": {
+	    "path":"goodleft.bmp",
+	    "width":16,
+	    "height":24
+	},
+	"looping": false,
+	"frames": [[0, 1]]
+    }
+}
