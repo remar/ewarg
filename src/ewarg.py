@@ -1,4 +1,4 @@
-import sdl2, math, json
+import sdl2, math, json, sdl2.sdlgfx
 
 class ewarg(object):
     def __init__(self):
@@ -8,6 +8,9 @@ class ewarg(object):
         self.sprite_instances = {}
         self.next_sprite_id = 0
         self.last_time = 0
+        self.fps_manager = sdl2.sdlgfx.FPSManager()
+        sdl2.sdlgfx.SDL_initFramerate(self.fps_manager)
+        sdl2.sdlgfx.SDL_setFramerate(self.fps_manager, 60)
 
     def init(self, width, height):
         self.width = width
@@ -40,6 +43,8 @@ class ewarg(object):
             sprite_instance.draw(self.renderer, delta)
 
         sdl2.SDL_RenderPresent(self.renderer)
+
+        sdl2.sdlgfx.SDL_framerateDelay(self.fps_manager)
 
     def set_tilesize(self, width, height):
         self.tile_width = width
