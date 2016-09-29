@@ -5,6 +5,9 @@ class ewarg(object):
         self.tiles = []
         self.tilesets = {}
         self.sprites = {}
+        self.sprite_instances = {}
+        self.next_sprite_id = 0
+        self.last_time = 0
 
     def init(self, width, height):
         self.width = width
@@ -21,10 +24,21 @@ class ewarg(object):
         sdl2.SDL_RenderSetLogicalSize(self.renderer, width, height)
 
     def redraw(self):
+        if self.last_time == 0:
+            delta = 0
+        else:
+            delta = sdl2.SDL_GetTicks() - self.last_time
+        self.last_time = sdl2.SDL_GetTicks()
+
         sdl2.SDL_RenderClear(self.renderer)
+
         for l in self.tiles:
             for tile in l:
                 tile.draw(self.renderer)
+
+        for sprite_instance in self.sprite_instances.values():
+            sprite_instance.draw(self.renderer, delta)
+
         sdl2.SDL_RenderPresent(self.renderer)
 
     def set_tilesize(self, width, height):
@@ -46,6 +60,15 @@ class ewarg(object):
         sprite_def = json.load(f)
         f.close()
         self.sprites[sprite_name] = Sprite(sprite_def, path, self.cache)
+
+    def create_sprite_instance(self, sprite_name):
+        sprite_id = self.next_sprite_id
+        self.next_sprite_id += 1
+        self.sprite_instances[sprite_id] = SpriteInstance(self.sprites[sprite_name])
+        return sprite_id
+
+    def set_animation(self, sprite_id, animation):
+        self.sprite_instances[sprite_id].set_animation(animation)
 
     def _init_tiles(self):
         tiles_per_row = int(math.ceil(float(self.width) / self.tile_width))
@@ -105,6 +128,52 @@ class Animation(object):
         self.height = animation_def["image"]["height"]
         self.looping = animation_def["looping"]
 
-    def __str__(self):
-        return "Width: " + str(self.width) + ", Height: " + str(self.height) + \
-            ", Looping: " + str(self.looping) + ", Frames: " + str(self.frames)
+class SpriteInstance(object):
+    def __init__(self, sprite):
+        self.sprite = sprite
+        self.current_animation = None
+        self.visible = True
+        self.current_frame = 0
+        self.time_spent_in_frame = 0
+        self.src = sdl2.SDL_Rect()
+        self.dest = sdl2.SDL_Rect()
+
+    def set_animation(self, animation):
+        self.current_animation = self.sprite.animations[animation]
+        self.frames_len = len(self.current_animation.frames)
+        self.current_frame_index = 0
+        self.current_frame = self.current_animation.frames[self.current_frame_index]
+        self.current_frame_time = self.current_frame[1]
+        self.time_spent_in_frame = 0
+        self.texture = self.current_animation.texture
+
+        self.dest.w = self.src.w = self.current_animation.width
+        self.dest.h = self.src.h = self.current_animation.height
+
+        self.src.x = self.current_frame[0] * self.current_animation.width
+
+    def draw(self, renderer, delta):
+        self._animate(delta)
+        if self.current_animation != None and self.visible and self.current_frame[0] != -1:
+            sdl2.SDL_RenderCopy(renderer, self.texture, self.src, self.dest)
+
+    def _animate(self, delta):
+        self.time_spent_in_frame += delta
+        if self.time_spent_in_frame > self.current_frame_time:
+            self._next_frame()
+            # go to next frame
+
+    def _next_frame(self):
+        if self.current_frame_index + 1 == self.frames_len:
+            if self.current_animation.looping:
+                self.current_frame_index = 0
+            else:
+                return # We're at the last frame and we're not looping
+        else:
+            self.current_frame_index += 1
+
+        self.current_frame = self.current_animation.frames[self.current_frame_index]
+        self.current_frame_time = self.current_frame[1]
+        self.time_spent_in_frame = 0
+
+        self.src.x = self.current_frame[0] * self.current_animation.width
