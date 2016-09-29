@@ -70,6 +70,12 @@ class ewarg(object):
     def set_animation(self, sprite_id, animation):
         self.sprite_instances[sprite_id].set_animation(animation)
 
+    def move_sprite_rel(self, sprite_id, dx, dy):
+        self.sprite_instances[sprite_id].move_rel(dx, dy)
+
+    def move_sprite_abs(self, sprite_id, x, y):
+        self.sprite_instances[sprite_id].move_abs(x, y)
+
     def _init_tiles(self):
         tiles_per_row = int(math.ceil(float(self.width) / self.tile_width))
         tiles_per_col = int(math.ceil(float(self.height) / self.tile_height))
@@ -156,6 +162,14 @@ class SpriteInstance(object):
         self._animate(delta)
         if self.current_animation != None and self.visible and self.current_frame[0] != -1:
             sdl2.SDL_RenderCopy(renderer, self.texture, self.src, self.dest)
+
+    def move_rel(self, dx, dy):
+        self.dest.x += dx
+        self.dest.y += dy
+
+    def move_abs(self, x, y):
+        self.dest.x = x
+        self.dest.y = y
 
     def _animate(self, delta):
         self.time_spent_in_frame += delta
