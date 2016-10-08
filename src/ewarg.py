@@ -168,6 +168,7 @@ class SpriteInstance(object):
         self.time_spent_in_frame = 0
         self.src = sdl2.SDL_Rect()
         self.dest = sdl2.SDL_Rect()
+        self.set_animation(list(self.sprite.animations.keys())[0])
 
     def set_animation(self, animation):
         self.current_animation = self.sprite.animations[animation]
