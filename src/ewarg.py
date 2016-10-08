@@ -1,3 +1,5 @@
+# ewarg -- Python graphics engine
+
 import sdl2, math, json, sdl2.sdlgfx
 
 class ewarg(object):
@@ -14,6 +16,7 @@ class ewarg(object):
         sdl2.sdlgfx.SDL_setFramerate(self.fps_manager, 60)
 
     def init(self, width, height):
+        """Initializes ewarg and sets up a window."""
         self.width = width
         self.height = height
         self.window = sdl2.SDL_CreateWindow(b"ewarg",
@@ -28,9 +31,14 @@ class ewarg(object):
         sdl2.SDL_RenderSetLogicalSize(self.renderer, width, height)
 
     def get_version(self):
+        """Returns the version of this ewarg."""
         return self.version
 
     def redraw(self):
+        """Redraw the screen with any tile changes and sprite updates.
+
+        Call this once each frame. This function will limit the
+        framerate to 60 frames per second."""
         if self.last_time == 0:
             delta = 0
         else:
@@ -51,18 +59,86 @@ class ewarg(object):
         sdl2.sdlgfx.SDL_framerateDelay(self.fps_manager)
 
     def set_tilesize(self, width, height):
+        """Set up how big each tile should be in the background."""
         self.tile_width = width
         self.tile_height = height
 
         self._init_tiles()
 
     def load_tileset(self, name, filename):
+        """Load a tileset and associate it with the given name.
+
+        The image must be in Windows BMP format.
+        """
         self.tilesets[name] = self.cache.get(filename)
 
     def set_tile(self, x, y, tileset, tile_x, tile_y):
+        """Set a tile in the background.
+
+        Keyword arguments:
+        x -- x position of tile in the background
+        y -- t position of tile in the background
+        tileset -- name of previously loaded tileset
+        tile_x -- x position of tile in tileset
+        tile_y -- y position of tile in tileset
+        """
         self.tiles[x][y].set(self.tilesets[tileset], tile_x, tile_y)
 
     def load_sprite(self, filename):
+        """Loads a sprite specified in a JSON file.
+
+        The loaded sprite will get the same name as the JSON file, so
+        e.g. a file named mario.json will make a "mario" sprite
+        available in ewarg.
+
+        The JSON file contains a number of animation definitions. Each
+        animation definition in turn contains an image definition, a
+        looping attribute, and a list of frames. So a prototypical
+        sprite definition looks like this:
+
+        {
+          "animation 1" : {
+            "image": {
+              "path": "path/to/image.bmp",
+              "width": 32,
+              "height": 32
+            },
+            "looping": true,
+            "frames": [
+              [0, 100], [1, 150], [2, 100]
+            ]
+          }
+        }
+
+        The above sprite definition will make available a sprite with
+        one animation, called "animation 1".
+
+        The image of the animation is "path/to/image.bmp", and this
+        path is relative to the JSON file. The width and height
+        attributes specify how big each frame of the animation is. The
+        frames in the image should be laid out horizontally (in a
+        row), so frame 0 is the first image, frame 1 is the second and
+        so on.
+
+        The looping attribute specifies if the animation should begin
+        at the first frame after finishing the last.
+
+        The frames array contains the frame definitions. Each frame is
+        specified as an array with two elements. The first element is
+        the index into the image. The second is the number of
+        milliseconds this frame should be displayed. So e.g. a frame
+        definition of [0, 100] means the first image, displayed 100
+        milliseconds.
+
+        A special value of -1 as image index indicates that the sprite
+        should be hidden during the frames duration. So to hide a
+        sprite for 150 ms, a frame definition of [-1, 150] would do
+        the trick.
+
+        See the examples that comes with ewarg for a better grasp of
+        how sprite definitions work.
+
+        """
         path = "/".join(filename.split("/")[0:-1])
         if path != "":
             path = path + "/"
@@ -73,24 +149,42 @@ class ewarg(object):
         self.sprites[sprite_name] = Sprite(sprite_def, path, self.cache)
 
     def create_sprite_instance(self, sprite_name):
+        """Creates a sprite from the given sprite definition.
+
+        To make a sprite appear on the screen it needs to be
+        instantiated. You can make any number of instances of a sprite
+        definition. The return value is a sprite ID that should be used
+        with other sprite methods when modifying this sprite instance.
+
+        The created sprite instance will be visible, it will be
+        located at x = 0 and y = 0, and some animation will be
+        chosen. To modify this behaviour, use the other provided
+        sprite methods.
+
+        """
         sprite_id = self.next_sprite_id
         self.next_sprite_id += 1
         self.sprite_instances[sprite_id] = SpriteInstance(self.sprites[sprite_name])
         return sprite_id
 
     def remove_sprite_instance(self, sprite_id):
+        """Remove the indicated sprite instance."""
         del self.sprite_instances[sprite_id]
 
     def show_sprite(self, sprite_id, show):
+        """Set this sprite instance visible or invisible."""
         self.sprite_instances[sprite_id].set_visible(show)
 
     def set_animation(self, sprite_id, animation):
+        """Set the sprite instances animation."""
         self.sprite_instances[sprite_id].set_animation(animation)
 
     def move_sprite_rel(self, sprite_id, dx, dy):
+        """Move the sprite instance relative to its current position."""
         self.sprite_instances[sprite_id].move_rel(dx, dy)
 
     def move_sprite_abs(self, sprite_id, x, y):
+        """Move the sprite instance to the given coordinates."""
         self.sprite_instances[sprite_id].move_abs(x, y)
 
     def _init_tiles(self):
