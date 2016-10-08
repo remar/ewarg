@@ -59,7 +59,9 @@ class ewarg(object):
         self.tiles[x][y].set(self.tilesets[tileset], tile_x, tile_y)
 
     def load_sprite(self, filename):
-        path = "/".join(filename.split("/")[0:-1]) + "/"
+        path = "/".join(filename.split("/")[0:-1])
+        if path != "":
+            path = path + "/"
         sprite_name = filename.split("/")[-1].split(".")[0:-1][0]
         f = open(filename)
         sprite_def = json.load(f)
@@ -137,6 +139,9 @@ class Sprite(object):
         for name, animation_def in sprite_def.items():
             self.animations[name] = Animation(animation_def, path, cache)
 
+    def __str__(self):
+        return "\n".join(map(str, self.animations.values()))
+
 class Animation(object):
     def __init__(self, animation_def, path, cache):
         self.frames = animation_def["frames"]
@@ -144,6 +149,11 @@ class Animation(object):
         self.width = animation_def["image"]["width"]
         self.height = animation_def["image"]["height"]
         self.looping = animation_def["looping"]
+
+    def __str__(self):
+        return "Frames: " + str(self.frames) + ", width: " + str(self.width) \
+            + ", height: " + str(self.height) + ", looping: " \
+            + str(self.looping)
 
 class SpriteInstance(object):
     def __init__(self, sprite):
