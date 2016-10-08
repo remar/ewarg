@@ -96,6 +96,9 @@
     like this: import ewarg; e = ewarg.ewarg()
 **** init(width, height)
      Create a window with the specified width and height.
+**** get_version()
+     Will return a tuple of the format (major, minor, micro), and this
+     will probably be (0, 1, 0) for the first version.
 **** redraw()
      Update the screen with the sprite engines state. Call this once
      for each pass in the game loop.
