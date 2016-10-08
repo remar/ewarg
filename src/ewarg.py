@@ -2,6 +2,7 @@ import sdl2, math, json, sdl2.sdlgfx
 
 class ewarg(object):
     def __init__(self):
+        self.version = (0, 1, 0)
         self.tiles = []
         self.tilesets = {}
         self.sprites = {}
@@ -25,6 +26,9 @@ class ewarg(object):
 
         sdl2.SDL_SetHint(sdl2.SDL_HINT_RENDER_SCALE_QUALITY, b"linear")
         sdl2.SDL_RenderSetLogicalSize(self.renderer, width, height)
+
+    def get_version(self):
+        return self.version
 
     def redraw(self):
         if self.last_time == 0:
