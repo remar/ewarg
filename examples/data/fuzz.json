@@ -9,5 +9,16 @@
         "frames": [
             [0, 60], [1, 60], [2, 60]
         ]
+    },
+    "roll left": {
+        "image": {
+            "path":"fuzz.bmp",
+            "width":24,
+            "height":24
+        },
+        "looping": true,
+        "frames": [
+            [2, 60], [1, 60], [0, 60]
+        ]
     }
 }
