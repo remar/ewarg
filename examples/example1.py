@@ -2,9 +2,9 @@ import sys
 
 sys.path.append("../src")
 
-import ewarg, sdl2, sdl2.ext
+import ewarg, pygame
 
-sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO)
+pygame.init()
 
 ewarg = ewarg.ewarg()
 
@@ -22,10 +22,11 @@ for y in range(4):
 running = True
 
 while running:
-    for event in sdl2.ext.get_events():
-        if event.type == sdl2.SDL_QUIT:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
             running = False
             break
     ewarg.redraw()
 
-sdl2.SDL_Quit()
+pygame.display.quit()
+pygame.quit()

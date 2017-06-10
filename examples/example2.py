@@ -2,9 +2,9 @@ import sys
 
 sys.path.append("../src")
 
-import ewarg, sdl2, sdl2.ext
+import ewarg, pygame
 
-sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO)
+pygame.init()
 
 ewarg = ewarg.ewarg()
 
@@ -37,15 +37,15 @@ running = True
 show = True
 
 while running:
-    for event in sdl2.ext.get_events():
-        if event.type == sdl2.SDL_QUIT:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
             running = False
             break
-        elif event.type == sdl2.SDL_KEYDOWN:
-            if event.key.keysym.scancode == sdl2.SDL_SCANCODE_Q:
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q:
                 running = False
                 break
-            elif event.key.keysym.scancode == sdl2.SDL_SCANCODE_SPACE:
+            elif event.key == pygame.K_SPACE:
                 show = not show
                 ewarg.show_sprite(cpn_good_id, show)
 
@@ -57,4 +57,4 @@ while running:
 
     ewarg.redraw()
 
-sdl2.SDL_Quit()
+pygame.quit()

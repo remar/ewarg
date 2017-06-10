@@ -1,6 +1,6 @@
 # ewarg -- Python graphics engine
 
-import sdl2, math, json, sdl2.sdlgfx
+import pygame, math, json
 
 class ewarg(object):
     def __init__(self):
@@ -11,24 +11,16 @@ class ewarg(object):
         self.sprite_instances = {}
         self.next_sprite_id = 0
         self.last_time = 0
-        self.fps_manager = sdl2.sdlgfx.FPSManager()
-        sdl2.sdlgfx.SDL_initFramerate(self.fps_manager)
-        sdl2.sdlgfx.SDL_setFramerate(self.fps_manager, 60)
+        self.clock = pygame.time.Clock()
+        self.frame_rate = 60
 
     def init(self, width, height):
         """Initializes ewarg and sets up a window."""
         self.width = width
         self.height = height
-        self.window = sdl2.SDL_CreateWindow(b"ewarg",
-                                            sdl2.SDL_WINDOWPOS_CENTERED,
-                                            sdl2.SDL_WINDOWPOS_CENTERED,
-                                            width, height,
-                                            sdl2.SDL_WINDOW_SHOWN)
-        self.renderer = sdl2.SDL_CreateRenderer(self.window, -1, 0)
-        self.cache = TextureCache(self.renderer)
-
-        sdl2.SDL_SetHint(sdl2.SDL_HINT_RENDER_SCALE_QUALITY, b"linear")
-        sdl2.SDL_RenderSetLogicalSize(self.renderer, width, height)
+        self.screen = pygame.display.set_mode((width, height))
+        pygame.display.set_caption("ewarg")
+        self.cache = TextureCache()
 
     def get_version(self):
         """Returns the version of this ewarg."""
@@ -42,21 +34,21 @@ class ewarg(object):
         if self.last_time == 0:
             delta = 0
         else:
-            delta = sdl2.SDL_GetTicks() - self.last_time
-        self.last_time = sdl2.SDL_GetTicks()
+            delta = pygame.time.get_ticks() - self.last_time
+        self.last_time = pygame.time.get_ticks()
 
-        sdl2.SDL_RenderClear(self.renderer)
+        self.screen.fill((0, 0, 0)) # Fill with black
 
         for l in self.tiles:
             for tile in l:
-                tile.draw(self.renderer)
+                tile.draw(self.screen)
 
         for sprite_instance in self.sprite_instances.values():
-            sprite_instance.draw(self.renderer, delta)
+            sprite_instance.draw(self.screen, delta)
 
-        sdl2.SDL_RenderPresent(self.renderer)
+        pygame.display.flip()
 
-        sdl2.sdlgfx.SDL_framerateDelay(self.fps_manager)
+        self.clock.tick(self.frame_rate)
 
     def set_tilesize(self, width, height):
         """Set up how big each tile should be in the background."""
@@ -191,11 +183,7 @@ class ewarg(object):
         tiles_per_row = int(math.ceil(float(self.width) / self.tile_width))
         tiles_per_col = int(math.ceil(float(self.height) / self.tile_height))
         self.tiles = []
-        self.blank = sdl2.SDL_CreateTexture(self.renderer,
-                                            sdl2.SDL_PIXELFORMAT_ARGB8888,
-                                            sdl2.SDL_TEXTUREACCESS_STATIC,
-                                            self.tile_width,
-                                            self.tile_height)
+        self.blank = pygame.Surface((self.tile_width, self.tile_height))
         for x in range(tiles_per_row):
             self.tiles.append([])
             for y in range(tiles_per_col):
@@ -204,32 +192,28 @@ class ewarg(object):
                 self.tiles[x].append(t)
 
 class TextureCache(object):
-    def __init__(self, renderer):
-        self.renderer = renderer
+    def __init__(self):
         self.cache = {}
 
     def get(self, filename):
         if filename not in self.cache:
-            image = sdl2.SDL_LoadBMP(bytes(filename, 'ascii'))
-            self.cache[filename] = sdl2.SDL_CreateTextureFromSurface(self.renderer,
-                                                                     image)
-            sdl2.SDL_FreeSurface(image)
+            self.cache[filename] = pygame.image.load(filename)
         return self.cache[filename]
 
 class Tile(object):
     def __init__(self, x, y, width, height):
         self.texture = None
-        self.dest = sdl2.SDL_Rect(x*width, y*height, width, height)
+        self.dest = pygame.Rect(x*width, y*height, width, height)
         self.width = width
         self.height = height
 
     def set(self, texture, tile_x, tile_y):
         self.texture = texture
-        self.src = sdl2.SDL_Rect(tile_x*self.width, tile_y*self.height,
-                                 self.width, self.height)
+        self.src = pygame.Rect(tile_x*self.width, tile_y*self.height,
+                               self.width, self.height)
 
-    def draw(self, renderer):
-        sdl2.SDL_RenderCopy(renderer, self.texture, self.src, self.dest)
+    def draw(self, screen):
+        screen.blit(self.texture, self.dest, self.src)
 
 class Sprite(object):
     def __init__(self, sprite_def, path, cache):
@@ -260,8 +244,8 @@ class SpriteInstance(object):
         self.visible = True
         self.current_frame = 0
         self.time_spent_in_frame = 0
-        self.src = sdl2.SDL_Rect()
-        self.dest = sdl2.SDL_Rect()
+        self.src = pygame.Rect(0, 0, 0, 0)
+        self.dest = pygame.Rect(0, 0, 0, 0)
         self.set_animation(list(self.sprite.animations.keys())[0])
 
     def set_animation(self, animation):
@@ -281,10 +265,10 @@ class SpriteInstance(object):
     def set_visible(self, visible):
         self.visible = visible
 
-    def draw(self, renderer, delta):
+    def draw(self, screen, delta):
         self._animate(delta)
         if self.current_animation != None and self.visible and self.current_frame[0] != -1:
-            sdl2.SDL_RenderCopy(renderer, self.texture, self.src, self.dest)
+            screen.blit(self.texture, self.dest, self.src)
 
     def move_rel(self, dx, dy):
         self.dest.x += dx

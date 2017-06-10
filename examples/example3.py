@@ -2,9 +2,9 @@ import sys
 
 sys.path.append("../src")
 
-import ewarg, sdl2, sdl2.ext, random, math
+import pygame, ewarg, random, math
 
-sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO)
+pygame.init()
 
 ewarg = ewarg.ewarg()
 
@@ -75,19 +75,19 @@ for i in range(10):
 running = True
 
 while running:
-    for event in sdl2.ext.get_events():
-        if event.type == sdl2.SDL_QUIT:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
             running = False
             break
-        elif event.type == sdl2.SDL_KEYDOWN:
-            if event.key.keysym.scancode == sdl2.SDL_SCANCODE_Q:
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q:
                 running = False
                 break
-            elif event.key.keysym.scancode == sdl2.SDL_SCANCODE_SPACE:
+            elif event.key == pygame.K_SPACE:
                 for i in range(10):
                     fuzzes.append(Fuzz(ewarg))
                 print("Number of fuzzies:", len(fuzzes))
-            elif event.key.keysym.scancode == sdl2.SDL_SCANCODE_C:
+            elif event.key == pygame.K_c:
                 for fuzz in fuzzes[10:]:
                     fuzz.remove()
                 fuzzes = fuzzes[:10]
@@ -97,4 +97,4 @@ while running:
 
     ewarg.redraw()
 
-sdl2.SDL_Quit()
+pygame.quit()
