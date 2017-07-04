@@ -13,6 +13,7 @@ class ewarg(object):
         self.last_time = 0
         self.clock = pygame.time.Clock()
         self.frame_rate = 60
+        self.bg_color = (0, 0, 0)
 
     def init(self, width, height):
         """Initializes ewarg and sets up a window."""
@@ -37,7 +38,7 @@ class ewarg(object):
             delta = pygame.time.get_ticks() - self.last_time
         self.last_time = pygame.time.get_ticks()
 
-        self.screen.fill((0, 0, 0)) # Fill with black
+        self.screen.fill(self.bg_color)
 
         for l in self.tiles:
             for tile in l:
@@ -49,6 +50,10 @@ class ewarg(object):
         pygame.display.flip()
 
         self.clock.tick(self.frame_rate)
+
+    def set_bg_color(self, red, green, blue):
+        """Set the background color, colors in range 0 - 255."""
+        self.bg_color = (red, green, blue)
 
     def set_tilesize(self, width, height):
         """Set up how big each tile should be in the background."""
