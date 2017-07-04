@@ -74,7 +74,7 @@ class ewarg(object):
 
         Keyword arguments:
         x -- x position of tile in the background
-        y -- t position of tile in the background
+        y -- y position of tile in the background
         tileset -- name of previously loaded tileset
         tile_x -- x position of tile in tileset
         tile_y -- y position of tile in tileset
